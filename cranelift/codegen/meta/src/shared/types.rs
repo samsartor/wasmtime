@@ -164,7 +164,7 @@ impl Iterator for HandleIterator {
         };
         self.index += 1;
         res
-    }    
+    }
 }
 
 #[cfg(test)]

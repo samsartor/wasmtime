@@ -1638,6 +1638,49 @@ impl ReferenceCheckOP {
     }
 }
 
+impl CGetOp {
+    pub(crate) fn op_code(self) -> u32 {
+        match self {
+            CGetOp::GetBase => 0x2,
+            CGetOp::GetLen => 0x3,
+            CGetOp::GetOffset => 0x6,
+            CGetOp::GetAddr => 0xf,
+        }
+    }
+
+    pub(crate) fn op_name(self) -> &'static str {
+        match self {
+            CGetOp::GetBase => "CGetBase",
+            CGetOp::GetLen => "CGetLen",
+            CGetOp::GetOffset => "CGetOffset",
+            CGetOp::GetAddr => "CGetAddr",
+        }
+    }
+}
+
+impl CModOp {
+    pub(crate) fn op_code(self) -> u32 {
+        match self {
+            CModOp::IncOffset => 0x11,
+            CModOp::SetBounds => 0x8,
+        }
+    }
+
+    pub(crate) fn op_code_imm(self) -> u32 {
+        match self {
+            CModOp::IncOffset => 0x1,
+            CModOp::SetBounds => 0x2,
+        }
+    }
+
+    pub(crate) fn op_name(self) -> &'static str {
+        match self {
+            CModOp::SetBounds => "CSetBounds",
+            CModOp::IncOffset => "CIncOffset",
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub enum CsrAddress {
     Fcsr = 0x3,

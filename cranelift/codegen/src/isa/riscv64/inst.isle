@@ -342,6 +342,20 @@
       (guard_size u32)
       (probe_count u32)
       (tmp WritableReg))
+  
+    ;;; CHERI Instructions
+    ;; We act as though the register file is merged, because a new
+    ;; class of registers would be annoying to implement
+    (CGet 
+      (op CGetOp)
+      (cs Reg)
+      (rd WritableReg))
+    (CMod
+      (op CModOp)
+      (cs Reg)
+      (rs OptionReg)
+      (im OptionImm12)
+      (cd WritableReg))
 ))
 
 
@@ -677,6 +691,19 @@
 (type FenceFm (enum 
     (None)
     (Tso)
+))
+
+;; CHERI Instructions
+(type CGetOp (enum
+  (GetBase)
+  (GetLen)
+  (GetOffset)
+  (GetAddr)
+))
+
+(type CModOp (enum
+  (SetBounds)
+  (IncOffset)
 ))
 
 

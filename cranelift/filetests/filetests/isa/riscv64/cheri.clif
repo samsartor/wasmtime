@@ -1,0 +1,13 @@
+test compile precise-output
+set unwind_info=false
+target riscv64
+
+function %f1(h128) -> h128 {
+block0(v0: h128):
+  v1 = hadd v0, 16
+  return v1
+}
+
+; block0:
+;   CIncOffset a0,a0,16
+;   ret

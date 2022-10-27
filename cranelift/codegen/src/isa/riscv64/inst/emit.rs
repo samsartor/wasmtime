@@ -2837,6 +2837,37 @@ impl MachInstEmit for Inst {
                 }
                 sink.bind_label(label_done);
             }
+            &Inst::CGet { op, cs, rd } => {
+                let cs = allocs.next(cs);
+                let rd = allocs.next_writable(rd);
+                let x = 0x5b
+                    | reg_to_gpr_num(rd.to_reg()) << 7
+                    | reg_to_gpr_num(cs) << 15
+                    | op.op_code() << 20
+                    | 0x7f << 25;
+                sink.put4(x);
+            }
+            &Inst::CMod { op, cs, rs, im, cd } => {
+                let cs = allocs.next(cs);
+                let cd = allocs.next_writable(cd);
+                let rs = rs.map(|rs| allocs.next(rs));
+                let x = match (im, rs) {
+                    (Some(imm), None) => {
+                        0x5b | reg_to_gpr_num(cd.to_reg()) << 7
+                            | op.op_code_imm() << 12
+                            | reg_to_gpr_num(cs) << 15
+                            | imm.as_u32() << 20
+                    }
+                    (None, Some(rs)) => {
+                        0x5b | reg_to_gpr_num(cd.to_reg()) << 7
+                            | reg_to_gpr_num(cs) << 15
+                            | reg_to_gpr_num(rs) << 20
+                            | op.op_code() << 25
+                    }
+                    _ => panic!("can not set rs and imm"),
+                };
+                sink.put4(x);
+            }
             &Inst::StackProbeLoop {
                 guard_size,
                 probe_count,

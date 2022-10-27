@@ -457,9 +457,9 @@ impl SpecialType {
                 "CPU flags representing the result of a floating point comparison. These
                 flags can be tested with a :type:`floatcc` condition code.",
             ),
-            SpecialType::Handle(shared_types::Handle::H128) => String::from(
-                "A secure, memory safe pointer occupying 128 bits in memory.",
-            )
+            SpecialType::Handle(shared_types::Handle::H128) => {
+                String::from("A secure, memory safe pointer occupying 128 bits in memory.")
+            }
         }
     }
 

@@ -51,8 +51,8 @@ pub(crate) type VecWritableReg = Vec<Writable<Reg>>;
 
 use crate::isa::riscv64::lower::isle::generated_code::MInst;
 pub use crate::isa::riscv64::lower::isle::generated_code::{
-    AluOPRRI, AluOPRRR, AtomicOP, CsrOP, FClassResult, FFlagsException, FenceFm, FloatRoundOP,
-    FloatSelectOP, FpuOPRR, FpuOPRRR, FpuOPRRRR, IntSelectOP, LoadOP, MInst as Inst,
+    AluOPRRI, AluOPRRR, AtomicOP, CGetOp, CModOp, CsrOP, FClassResult, FFlagsException, FenceFm,
+    FloatRoundOP, FloatSelectOP, FpuOPRR, FpuOPRRR, FpuOPRRRR, IntSelectOP, LoadOP, MInst as Inst,
     ReferenceCheckOP, StoreOP, FRM,
 };
 
@@ -609,6 +609,17 @@ fn riscv64_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut Operan
             collector.reg_early_def(tmp2);
             collector.reg_early_def(rd);
         }
+        &Inst::CGet { cs, rd, .. } => {
+            collector.reg_use(cs);
+            collector.reg_def(rd);
+        }
+        &Inst::CMod { cs, rs, cd, .. } => {
+            collector.reg_use(cs);
+            if let Some(rs) = rs {
+                collector.reg_use(rs);
+            }
+            collector.reg_def(cd);
+        }
         &Inst::StackProbeLoop { .. } => {
             // StackProbeLoop has a tmp register and StackProbeLoop used at gen_prologue.
             // t3 will do the job. (t3 is caller-save register and not used directly by compiler like writable_spilltmp_reg)
@@ -1021,6 +1032,25 @@ impl Inst {
                     rd, rs, tmp, tmp2, step, ty
                 )
             }
+            &Inst::CGet { op, cs, rd } => {
+                let rd = format_reg(rd.to_reg(), allocs);
+                let cs = format_reg(cs, allocs);
+                format!("{} {},{}", op.op_name(), rd, cs)
+            }
+            &Inst::CMod { op, cs, rs, im, cd } => match (im, rs) {
+                (Some(im), None) => {
+                    let cs = format_reg(cs, allocs);
+                    let cd = format_reg(cd.to_reg(), allocs);
+                    format!("{} {},{},{}", op.op_name(), cd, cs, im)
+                }
+                (None, Some(rs)) => {
+                    let cs = format_reg(cs, allocs);
+                    let cd = format_reg(cd.to_reg(), allocs);
+                    let rs = format_reg(rs, allocs);
+                    format!("{} {},{},{}", op.op_name(), cd, cs, rs)
+                }
+                _ => panic!("can not set rs and imm"),
+            },
             &Inst::SelectIf {
                 if_spectre_guard,
                 ref rd,
