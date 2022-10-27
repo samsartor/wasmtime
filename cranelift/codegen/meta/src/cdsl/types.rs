@@ -442,6 +442,7 @@ impl fmt::Debug for DynamicVectorType {
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub(crate) enum SpecialType {
     Flag(shared_types::Flag),
+    Handle(shared_types::Handle),
 }
 
 impl SpecialType {
@@ -456,6 +457,9 @@ impl SpecialType {
                 "CPU flags representing the result of a floating point comparison. These
                 flags can be tested with a :type:`floatcc` condition code.",
             ),
+            SpecialType::Handle(shared_types::Handle::H128) => String::from(
+                "A secure, memory safe pointer occupying 128 bits in memory.",
+            )
         }
     }
 
@@ -463,6 +467,7 @@ impl SpecialType {
     pub fn lane_bits(self) -> u64 {
         match self {
             SpecialType::Flag(_) => 0,
+            SpecialType::Handle(shared_types::Handle::H128) => 128,
         }
     }
 
@@ -471,6 +476,7 @@ impl SpecialType {
         match self {
             SpecialType::Flag(shared_types::Flag::IFlags) => 1,
             SpecialType::Flag(shared_types::Flag::FFlags) => 2,
+            SpecialType::Handle(shared_types::Handle::H128) => 16,
         }
     }
 }
@@ -480,6 +486,7 @@ impl fmt::Display for SpecialType {
         match *self {
             SpecialType::Flag(shared_types::Flag::IFlags) => write!(f, "iflags"),
             SpecialType::Flag(shared_types::Flag::FFlags) => write!(f, "fflags"),
+            SpecialType::Handle(shared_types::Handle::H128) => write!(f, "h128"),
         }
     }
 }
@@ -491,6 +498,7 @@ impl fmt::Debug for SpecialType {
             "{}",
             match *self {
                 SpecialType::Flag(_) => format!("FlagsType({})", self),
+                SpecialType::Handle(_) => format!("HandleType({})", self),
             }
         )
     }
@@ -502,14 +510,22 @@ impl From<shared_types::Flag> for SpecialType {
     }
 }
 
+impl From<shared_types::Handle> for SpecialType {
+    fn from(f: shared_types::Handle) -> Self {
+        SpecialType::Handle(f)
+    }
+}
+
 pub(crate) struct SpecialTypeIterator {
     flag_iter: shared_types::FlagIterator,
+    handle_iter: shared_types::HandleIterator,
 }
 
 impl SpecialTypeIterator {
     fn new() -> Self {
         Self {
             flag_iter: shared_types::FlagIterator::new(),
+            handle_iter: shared_types::HandleIterator::new(),
         }
     }
 }
@@ -517,7 +533,13 @@ impl SpecialTypeIterator {
 impl Iterator for SpecialTypeIterator {
     type Item = SpecialType;
     fn next(&mut self) -> Option<Self::Item> {
-        self.flag_iter.next().map(SpecialType::from)
+        if let Some(i) = self.flag_iter.next() {
+            Some(SpecialType::from(i))
+        } else if let Some(f) = self.handle_iter.next() {
+            Some(SpecialType::from(f))
+        } else {
+            None
+        }
     }
 }
 

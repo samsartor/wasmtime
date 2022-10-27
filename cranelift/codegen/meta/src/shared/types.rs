@@ -139,6 +139,34 @@ impl Iterator for ReferenceIterator {
     }
 }
 
+/// A secure, memory safe pointer type.
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+pub(crate) enum Handle {
+    H128,
+}
+
+pub(crate) struct HandleIterator {
+    index: u8,
+}
+
+impl HandleIterator {
+    pub fn new() -> Self {
+        Self { index: 0 }
+    }
+}
+
+impl Iterator for HandleIterator {
+    type Item = Handle;
+    fn next(&mut self) -> Option<Self::Item> {
+        let res = match self.index {
+            0 => Some(Handle::H128),
+            _ => return None,
+        };
+        self.index += 1;
+        res
+    }    
+}
+
 #[cfg(test)]
 mod iter_tests {
     use super::*;
