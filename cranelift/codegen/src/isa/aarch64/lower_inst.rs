@@ -317,6 +317,10 @@ pub(crate) fn lower_insn_to_regs(
                 op
             )));
         }
+
+        Opcode::HandleAdd => {
+            panic!("CHERI is unsupported on x86");
+        }
     }
 
     Ok(())

@@ -1293,6 +1293,8 @@ where
         Opcode::GetFramePointer => unimplemented!("GetFramePointer"),
         Opcode::GetStackPointer => unimplemented!("GetStackPointer"),
         Opcode::GetReturnAddress => unimplemented!("GetReturnAddress"),
+
+        Opcode::HandleAdd => unimplemented!("HandleAdd"),
     })
 }
 

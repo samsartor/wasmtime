@@ -10,6 +10,8 @@ use crate::shared::formats::Formats;
 use crate::shared::types;
 use crate::shared::{entities::EntityRefs, immediates::Immediates};
 
+use super::types::Handle;
+
 #[inline(never)]
 fn define_control_flow(
     ig: &mut InstructionGroupBuilder,
@@ -3910,6 +3912,27 @@ pub(crate) fn define(
         Return a fixed length sub vector, extracted from a dynamic vector.
         "#,
             &formats.binary_imm8,
+        )
+        .operands_in(vec![x, y])
+        .operands_out(vec![a]),
+    );
+
+    let Handle = &TypeVar::new(
+        "Handle",
+        "An unforgable bounds-checked pointer to some segment of memory",
+        TypeSetBuilder::new()
+            .specials(vec![Handle::H128.into()])
+            .build(),
+    );
+    let x = &Operand::new("x", Handle).with_doc("The segment handle");
+    let y = &Operand::new("y", Int).with_doc("An offset integer");
+    let a = &Operand::new("a", Handle).with_doc("New segment handle");
+
+    ig.push(
+        Inst::new(
+            "handle_add",
+            "Modify the offset of a handle without changing the base or bound",
+            &formats.binary,
         )
         .operands_in(vec![x, y])
         .operands_out(vec![a]),

@@ -4,8 +4,9 @@ target riscv64
 
 function %f1(h128) -> h128 {
 block0(v0: h128):
-  v1 = hadd v0, 16
-  return v1
+  v1 = iconst.i64 16
+  v2 = handle_add v0, v1
+  return v2
 }
 
 ; block0:

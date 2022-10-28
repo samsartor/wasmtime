@@ -456,6 +456,7 @@ impl Display for Type {
             f.write_str(match *self {
                 IFLAGS => "iflags",
                 FFLAGS => "fflags",
+                H128 => "h128",
                 INVALID => panic!("INVALID encountered"),
                 _ => panic!("Unknown Type(0x{:x})", self.0),
             })

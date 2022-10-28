@@ -259,6 +259,10 @@ impl LowerBackend for S390xBackend {
             | Opcode::IfcmpImm => {
                 panic!("ALU+imm and ALU+carry ops should not appear here!");
             }
+
+            Opcode::HandleAdd => {
+                panic!("CHERI is unsupported on x86");
+            }
         }
     }
 
