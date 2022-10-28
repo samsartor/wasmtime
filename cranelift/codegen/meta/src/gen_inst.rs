@@ -802,6 +802,7 @@ pub(crate) fn gen_typesets_table(type_sets: &UniqueTable<TypeSet>, fmt: &mut For
                 gen_bitset(&ts.ints, "ints", 8, fmt);
                 gen_bitset(&ts.floats, "floats", 8, fmt);
                 gen_bitset(&ts.refs, "refs", 8, fmt);
+                fmtln!(fmt, "{}: {},", "handles", &ts.handles);
             });
             fmt.line("},");
         }

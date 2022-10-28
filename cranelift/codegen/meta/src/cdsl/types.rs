@@ -21,6 +21,7 @@ pub(crate) enum ValueType {
     Special(SpecialType),
     Vector(VectorType),
     DynamicVector(DynamicVectorType),
+    Handle(HandleType),
 }
 
 impl ValueType {
@@ -38,6 +39,10 @@ impl ValueType {
         ReferenceTypeIterator::new()
     }
 
+    pub fn all_handle_types() -> HandleTypeIterator {
+        HandleTypeIterator::new()
+    }
+
     /// Return a string containing the documentation comment for this type.
     pub fn doc(&self) -> String {
         match *self {
@@ -46,6 +51,7 @@ impl ValueType {
             ValueType::Special(s) => s.doc(),
             ValueType::Vector(ref v) => v.doc(),
             ValueType::DynamicVector(ref v) => v.doc(),
+            ValueType::Handle(h) => h.doc(),
         }
     }
 
@@ -57,6 +63,7 @@ impl ValueType {
             ValueType::Special(s) => s.lane_bits(),
             ValueType::Vector(ref v) => v.lane_bits(),
             ValueType::DynamicVector(ref v) => v.lane_bits(),
+            ValueType::Handle(h) => h.lane_bits(),
         }
     }
 
@@ -81,6 +88,7 @@ impl ValueType {
             ValueType::Special(s) => s.number(),
             ValueType::Vector(ref v) => v.number(),
             ValueType::DynamicVector(ref v) => v.number(),
+            ValueType::Handle(h) => h.number(),
         }
     }
 
@@ -103,6 +111,7 @@ impl fmt::Display for ValueType {
             ValueType::Special(s) => s.fmt(f),
             ValueType::Vector(ref v) => v.fmt(f),
             ValueType::DynamicVector(ref v) => v.fmt(f),
+            ValueType::Handle(h) => h.fmt(f),
         }
     }
 }
@@ -139,6 +148,13 @@ impl From<VectorType> for ValueType {
 impl From<DynamicVectorType> for ValueType {
     fn from(vector: DynamicVectorType) -> Self {
         ValueType::DynamicVector(vector)
+    }
+}
+
+/// Create a ValueType from a given segment handle type.
+impl From<HandleType> for ValueType {
+    fn from(handle: HandleType) -> Self {
+        ValueType::Handle(handle)
     }
 }
 
@@ -442,7 +458,6 @@ impl fmt::Debug for DynamicVectorType {
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub(crate) enum SpecialType {
     Flag(shared_types::Flag),
-    Handle(shared_types::Handle),
 }
 
 impl SpecialType {
@@ -457,9 +472,6 @@ impl SpecialType {
                 "CPU flags representing the result of a floating point comparison. These
                 flags can be tested with a :type:`floatcc` condition code.",
             ),
-            SpecialType::Handle(shared_types::Handle::H128) => {
-                String::from("A secure, memory safe pointer occupying 128 bits in memory.")
-            }
         }
     }
 
@@ -467,7 +479,6 @@ impl SpecialType {
     pub fn lane_bits(self) -> u64 {
         match self {
             SpecialType::Flag(_) => 0,
-            SpecialType::Handle(shared_types::Handle::H128) => 128,
         }
     }
 
@@ -476,7 +487,6 @@ impl SpecialType {
         match self {
             SpecialType::Flag(shared_types::Flag::IFlags) => 1,
             SpecialType::Flag(shared_types::Flag::FFlags) => 2,
-            SpecialType::Handle(shared_types::Handle::H128) => 16,
         }
     }
 }
@@ -486,7 +496,6 @@ impl fmt::Display for SpecialType {
         match *self {
             SpecialType::Flag(shared_types::Flag::IFlags) => write!(f, "iflags"),
             SpecialType::Flag(shared_types::Flag::FFlags) => write!(f, "fflags"),
-            SpecialType::Handle(shared_types::Handle::H128) => write!(f, "h128"),
         }
     }
 }
@@ -498,7 +507,6 @@ impl fmt::Debug for SpecialType {
             "{}",
             match *self {
                 SpecialType::Flag(_) => format!("FlagsType({})", self),
-                SpecialType::Handle(_) => format!("HandleType({})", self),
             }
         )
     }
@@ -510,22 +518,14 @@ impl From<shared_types::Flag> for SpecialType {
     }
 }
 
-impl From<shared_types::Handle> for SpecialType {
-    fn from(f: shared_types::Handle) -> Self {
-        SpecialType::Handle(f)
-    }
-}
-
 pub(crate) struct SpecialTypeIterator {
     flag_iter: shared_types::FlagIterator,
-    handle_iter: shared_types::HandleIterator,
 }
 
 impl SpecialTypeIterator {
     fn new() -> Self {
         Self {
             flag_iter: shared_types::FlagIterator::new(),
-            handle_iter: shared_types::HandleIterator::new(),
         }
     }
 }
@@ -535,8 +535,6 @@ impl Iterator for SpecialTypeIterator {
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(i) = self.flag_iter.next() {
             Some(SpecialType::from(i))
-        } else if let Some(f) = self.handle_iter.next() {
-            Some(SpecialType::from(f))
         } else {
             None
         }
@@ -617,6 +615,81 @@ impl Iterator for ReferenceTypeIterator {
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(r) = self.reference_iter.next() {
             Some(ReferenceType::from(r))
+        } else {
+            None
+        }
+    }
+}
+
+/// An unforgable pointer to a segment of memory.
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+pub(crate) struct HandleType(pub shared_types::Handle);
+
+impl HandleType {
+    /// Return a string containing the documentation comment for this reference type.
+    pub fn doc(self) -> String {
+        format!(
+            "A handle to a memory segment occupying {} bits in memory.",
+            self.lane_bits()
+        )
+    }
+
+    /// Return the number of bits in a lane.
+    pub fn lane_bits(self) -> u64 {
+        match self.0 {
+            shared_types::Handle::H128 => 128,
+        }
+    }
+
+    /// Find the unique number associated with this reference type.
+    pub fn number(self) -> u16 {
+        constants::HANDLE_BASE
+            + match self {
+                HandleType(shared_types::Handle::H128) => 0,
+            }
+    }
+}
+
+impl fmt::Display for HandleType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.0 {
+            shared_types::Handle::H128 => f.write_str("h128"),
+        }
+    }
+}
+
+impl fmt::Debug for HandleType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "HandleType(bits={})", self.lane_bits())
+    }
+}
+
+/// Create a HandleType from a given reference variant.
+impl From<shared_types::Handle> for HandleType {
+    fn from(r: shared_types::Handle) -> Self {
+        HandleType(r)
+    }
+}
+
+/// An iterator for different reference types.
+pub(crate) struct HandleTypeIterator {
+    handle_iter: shared_types::HandleIterator,
+}
+
+impl HandleTypeIterator {
+    /// Create a new handle type iterator.
+    pub(crate) fn new() -> Self {
+        Self {
+            handle_iter: shared_types::HandleIterator::new(),
+        }
+    }
+}
+
+impl Iterator for HandleTypeIterator {
+    type Item = HandleType;
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(r) = self.handle_iter.next() {
+            Some(HandleType::from(r))
         } else {
             None
         }

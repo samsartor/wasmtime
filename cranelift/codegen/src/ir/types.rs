@@ -260,6 +260,14 @@ impl Type {
         }
     }
 
+    /// Is this a handle type?
+    pub fn is_handle(self) -> bool {
+        match self {
+            H128 => true,
+            _ => false,
+        }
+    }
+
     /// Get log_2 of the number of lanes in this SIMD vector type.
     ///
     /// All SIMD types have a lane count that is a power of two and no larger than 256, so this

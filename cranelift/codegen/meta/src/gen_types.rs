@@ -63,6 +63,11 @@ fn emit_types(fmt: &mut srcgen::Formatter) {
         emit_type(&ty, fmt);
     }
 
+    // Emit all handle types.
+    for ty in cdsl_types::ValueType::all_handle_types().map(cdsl_types::ValueType::from) {
+        emit_type(&ty, fmt);
+    }
+
     // Emit vector definitions for common SIMD sizes.
     // Emit dynamic vector definitions.
     for vec_size in &[64_u64, 128, 256, 512] {

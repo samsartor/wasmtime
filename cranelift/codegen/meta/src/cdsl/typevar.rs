@@ -6,7 +6,9 @@ use std::iter::FromIterator;
 use std::ops;
 use std::rc::Rc;
 
-use crate::cdsl::types::{LaneType, ReferenceType, SpecialType, ValueType};
+use crate::cdsl::types::{
+    HandleType, HandleTypeIterator, LaneType, ReferenceType, SpecialType, ValueType,
+};
 
 const MAX_LANES: u16 = 256;
 const MAX_BITS: u16 = 128;
@@ -72,6 +74,10 @@ impl TypeVar {
                 vec_type.lane_type(),
                 vec_type.minimum_lane_count() as RangeBound,
             ),
+            ValueType::Handle(HandleType(reference_type)) => {
+                let bits = reference_type as RangeBound;
+                return TypeVar::new(name, doc, builder.refs(bits..bits).build());
+            }
         };
 
         builder = builder.simd_lanes(num_lanes..num_lanes);
@@ -385,6 +391,7 @@ pub(crate) struct TypeSet {
     pub ints: NumSet,
     pub floats: NumSet,
     pub refs: NumSet,
+    pub handles: bool,
     pub specials: Vec<SpecialType>,
 }
 
@@ -395,6 +402,7 @@ impl TypeSet {
         ints: NumSet,
         floats: NumSet,
         refs: NumSet,
+        handles: bool,
         specials: Vec<SpecialType>,
     ) -> Self {
         Self {
@@ -403,6 +411,7 @@ impl TypeSet {
             ints,
             floats,
             refs,
+            handles,
             specials,
         }
     }
@@ -411,6 +420,7 @@ impl TypeSet {
     pub fn size(&self) -> usize {
         self.lanes.len() * (self.ints.len() + self.floats.len() + self.refs.len())
             + self.dynamic_lanes.len() * (self.ints.len() + self.floats.len() + self.refs.len())
+            + (self.handles as usize * HandleTypeIterator::new().count())
             + self.specials.len()
     }
 
@@ -442,6 +452,7 @@ impl TypeSet {
         copy.ints = NumSet::new();
         copy.floats = NumSet::new();
         copy.refs = NumSet::new();
+        copy.handles = false;
         copy
     }
 
@@ -451,6 +462,7 @@ impl TypeSet {
         copy.ints = NumSet::from_iter(self.ints.iter().filter(|&&x| x > 8).map(|&x| x / 2));
         copy.floats = NumSet::from_iter(self.floats.iter().filter(|&&x| x > 32).map(|&x| x / 2));
         copy.specials = Vec::new();
+        copy.handles = false;
         copy
     }
 
@@ -465,6 +477,7 @@ impl TypeSet {
                 .map(|&x| x * 2),
         );
         copy.specials = Vec::new();
+        copy.handles = false;
         copy
     }
 
@@ -473,6 +486,7 @@ impl TypeSet {
         let mut copy = self.clone();
         copy.lanes = NumSet::from_iter(self.lanes.iter().filter(|&&x| x > 1).map(|&x| x / 2));
         copy.specials = Vec::new();
+        copy.handles = false;
         copy
     }
 
@@ -486,6 +500,7 @@ impl TypeSet {
                 .map(|&x| x * 2),
         );
         copy.specials = Vec::new();
+        copy.handles = false;
         copy
     }
 
@@ -499,6 +514,7 @@ impl TypeSet {
         );
         copy.specials = Vec::new();
         copy.dynamic_lanes = NumSet::new();
+        copy.handles = false;
         copy
     }
 
@@ -525,6 +541,11 @@ impl TypeSet {
         }
         for &special in &self.specials {
             ret.push(special.into());
+        }
+        if self.handles {
+            for h in HandleTypeIterator::new() {
+                ret.push(h.into());
+            }
         }
         ret
     }
@@ -591,6 +612,7 @@ pub(crate) struct TypeSetBuilder {
     includes_scalars: bool,
     simd_lanes: Interval,
     dynamic_simd_lanes: Interval,
+    handles: bool,
     specials: Vec<SpecialType>,
 }
 
@@ -603,6 +625,7 @@ impl TypeSetBuilder {
             includes_scalars: true,
             simd_lanes: Interval::None,
             dynamic_simd_lanes: Interval::None,
+            handles: false,
             specials: Vec::new(),
         }
     }
@@ -641,6 +664,11 @@ impl TypeSetBuilder {
         self.specials = specials;
         self
     }
+    pub fn handles(mut self) -> Self {
+        assert!(self.handles == false);
+        self.handles = true;
+        self
+    }
 
     pub fn build(self) -> TypeSet {
         let min_lanes = if self.includes_scalars { 1 } else { 2 };
@@ -651,6 +679,7 @@ impl TypeSetBuilder {
             range_to_set(self.ints.to_range(8..MAX_BITS, None)),
             range_to_set(self.floats.to_range(32..64, None)),
             range_to_set(self.refs.to_range(32..64, None)),
+            self.handles,
             self.specials,
         )
     }

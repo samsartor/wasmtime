@@ -540,6 +540,8 @@ pub struct ValueTypeSet {
     pub floats: BitSet8,
     /// Allowed ref widths
     pub refs: BitSet8,
+    /// Allows handles
+    pub handles: bool,
     /// Allowed dynamic vectors minimum lane sizes
     pub dynamic_lanes: BitSet16,
 }
@@ -556,6 +558,8 @@ impl ValueTypeSet {
             self.floats.contains(l2b)
         } else if scalar.is_ref() {
             self.refs.contains(l2b)
+        } else if scalar.is_handle() {
+            self.handles
         } else {
             false
         }
@@ -818,6 +822,7 @@ mod tests {
             ints: BitSet8::from_range(4, 7),
             floats: BitSet8::from_range(0, 0),
             refs: BitSet8::from_range(5, 7),
+            handles: false,
             dynamic_lanes: BitSet16::from_range(0, 4),
         };
         assert!(!vts.contains(I8));
@@ -835,6 +840,7 @@ mod tests {
             ints: BitSet8::from_range(0, 0),
             floats: BitSet8::from_range(5, 7),
             refs: BitSet8::from_range(0, 0),
+            handles: false,
             dynamic_lanes: BitSet16::from_range(0, 8),
         };
         assert_eq!(vts.example().to_string(), "f32");
@@ -844,6 +850,7 @@ mod tests {
             ints: BitSet8::from_range(0, 0),
             floats: BitSet8::from_range(5, 7),
             refs: BitSet8::from_range(0, 0),
+            handles: false,
             dynamic_lanes: BitSet16::from_range(0, 8),
         };
         assert_eq!(vts.example().to_string(), "f32x2");
@@ -853,6 +860,7 @@ mod tests {
             ints: BitSet8::from_range(3, 7),
             floats: BitSet8::from_range(0, 0),
             refs: BitSet8::from_range(0, 0),
+            handles: false,
             dynamic_lanes: BitSet16::from_range(0, 8),
         };
         assert_eq!(vts.example().to_string(), "i32x4");
@@ -863,6 +871,7 @@ mod tests {
             ints: BitSet8::from_range(3, 7),
             floats: BitSet8::from_range(0, 0),
             refs: BitSet8::from_range(0, 0),
+            handles: false,
             dynamic_lanes: BitSet16::from_range(0, 8),
         };
         assert!(vts.contains(I32));

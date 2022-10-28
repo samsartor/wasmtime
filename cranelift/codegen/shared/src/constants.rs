@@ -4,7 +4,8 @@
 // Numbering scheme for value types:
 //
 // 0: Void
-// 0x01-0x6f: Special types
+// 0x01-0x5f: Special types
+// 0x60-0x70: Handle types
 // 0x70-0x7d: Lane types
 // 0x7e-0x7f: Reference types
 // 0x80-0xff: Vector types
@@ -14,6 +15,9 @@
 // in the next highest 4 bits, giving a range of 2-256 lanes.
 
 // Dynamic vector types are encoded similarily.
+
+/// Start of the handle types
+pub const HANDLE_BASE: u16 = 0x60;
 
 /// Start of the lane types.
 pub const LANE_BASE: u16 = 0x70;

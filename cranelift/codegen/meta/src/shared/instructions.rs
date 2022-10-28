@@ -10,8 +10,6 @@ use crate::shared::formats::Formats;
 use crate::shared::types;
 use crate::shared::{entities::EntityRefs, immediates::Immediates};
 
-use super::types::Handle;
-
 #[inline(never)]
 fn define_control_flow(
     ig: &mut InstructionGroupBuilder,
@@ -3920,9 +3918,7 @@ pub(crate) fn define(
     let Handle = &TypeVar::new(
         "Handle",
         "An unforgable bounds-checked pointer to some segment of memory",
-        TypeSetBuilder::new()
-            .specials(vec![Handle::H128.into()])
-            .build(),
+        TypeSetBuilder::new().handles().build(),
     );
     let x = &Operand::new("x", Handle).with_doc("The segment handle");
     let y = &Operand::new("y", Int).with_doc("An offset integer");
