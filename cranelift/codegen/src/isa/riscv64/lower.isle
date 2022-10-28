@@ -899,3 +899,9 @@
 
 (rule (lower (call_indirect sig_ref val inputs))
   (gen_call_indirect sig_ref val inputs))
+
+;;;; Rules for `handle_add` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule -1 (lower (handle_add x y))
+  (gen_cmod (CModOp.IncOffset) x y))
+(rule 1 (lower (handle_add x (imm12_from_value y)))
+  (gen_cmod_imm (CModOp.IncOffset) x y))

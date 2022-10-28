@@ -164,6 +164,8 @@
 
 (extern const $I32X4XN Type)
 
+(extern const $H128 Type)
+
 ;; Get the bit width of a given type.
 (decl pure ty_bits (Type) u8)
 (extern constructor ty_bits ty_bits)

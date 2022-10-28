@@ -2847,25 +2847,25 @@ impl MachInstEmit for Inst {
                     | 0x7f << 25;
                 sink.put4(x);
             }
-            &Inst::CMod { op, cs, rs, im, cd } => {
+            &Inst::CMod { op, cs, rs, cd } => {
                 let cs = allocs.next(cs);
                 let cd = allocs.next_writable(cd);
-                let rs = rs.map(|rs| allocs.next(rs));
-                let x = match (im, rs) {
-                    (Some(imm), None) => {
-                        0x5b | reg_to_gpr_num(cd.to_reg()) << 7
-                            | op.op_code_imm() << 12
-                            | reg_to_gpr_num(cs) << 15
-                            | imm.as_u32() << 20
-                    }
-                    (None, Some(rs)) => {
-                        0x5b | reg_to_gpr_num(cd.to_reg()) << 7
-                            | reg_to_gpr_num(cs) << 15
-                            | reg_to_gpr_num(rs) << 20
-                            | op.op_code() << 25
-                    }
-                    _ => panic!("can not set rs and imm"),
-                };
+                let rs = allocs.next(rs);
+                let x = 0x5b
+                    | reg_to_gpr_num(cd.to_reg()) << 7
+                    | reg_to_gpr_num(cs) << 15
+                    | reg_to_gpr_num(rs) << 20
+                    | op.op_code() << 25;
+                sink.put4(x);
+            }
+            &Inst::CModImm12 { op, cs, imm, cd } => {
+                let cs = allocs.next(cs);
+                let cd = allocs.next_writable(cd);
+                let x = 0x5b
+                    | reg_to_gpr_num(cd.to_reg()) << 7
+                    | op.op_code_imm() << 12
+                    | reg_to_gpr_num(cs) << 15
+                    | imm.as_u32() << 20;
                 sink.put4(x);
             }
             &Inst::StackProbeLoop {

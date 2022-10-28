@@ -10,5 +10,15 @@ block0(v0: h128):
 }
 
 ; block0:
-;   CIncOffset a0,a0,16
+;   CIncOffsetImm a0,a0,+16
+;   ret
+
+function %f2(h128, i64) -> h128 {
+block0(v0: h128, v1: i64):
+  v2 = handle_add v0, v1
+  return v2
+}
+
+; block0:
+;   CIncOffset a0,a0,a1
 ;   ret

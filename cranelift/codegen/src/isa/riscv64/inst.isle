@@ -348,14 +348,18 @@
     ;; class of registers would be annoying to implement
     (CGet 
       (op CGetOp)
-      (cs Reg)
-      (rd WritableReg))
+      (rd WritableReg)
+      (cs Reg))
     (CMod
       (op CModOp)
+      (cd WritableReg)
       (cs Reg)
-      (rs OptionReg)
-      (im OptionImm12)
-      (cd WritableReg))
+      (rs Reg))
+    (CModImm12
+      (op CModOp)
+      (cd WritableReg)
+      (cs Reg)
+      (imm Imm12))
 ))
 
 
@@ -2158,3 +2162,22 @@
   (lower_bmask $I128 $I128 val)
   (let ((res ValueRegs (lower_bmask $I64 $I128 val)))
     (value_regs (value_regs_get res 0) (value_regs_get res 0))))
+  
+;; Helper for emitting `MInst.CGet` instructions.
+(decl gen_cget (CGetOp Reg) Reg)
+(rule (gen_cget op csrc)
+      (let ((idst WritableReg (temp_writable_reg $I64))
+            (_ Unit (emit (MInst.CGet op idst csrc))))
+        idst))
+
+;; Helper for emitting `MInst.CMod` instructions.
+(decl gen_cmod (CModOp Reg Reg) Reg)
+(rule (gen_cmod op csrc isrc)
+      (let ((cdst WritableReg (temp_writable_reg $H128))
+            (_ Unit (emit (MInst.CMod op cdst csrc isrc))))
+        cdst))
+(decl gen_cmod_imm (CModOp Reg Imm12) Reg)
+(rule (gen_cmod_imm op csrc imm)
+      (let ((cdst WritableReg (temp_writable_reg $H128))
+            (_ Unit (emit (MInst.CModImm12 op cdst csrc imm))))
+        cdst))

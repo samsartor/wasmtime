@@ -615,9 +615,11 @@ fn riscv64_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut Operan
         }
         &Inst::CMod { cs, rs, cd, .. } => {
             collector.reg_use(cs);
-            if let Some(rs) = rs {
-                collector.reg_use(rs);
-            }
+            collector.reg_use(rs);
+            collector.reg_def(cd);
+        }
+        &Inst::CModImm12 { cs, cd, .. } => {
+            collector.reg_use(cs);
             collector.reg_def(cd);
         }
         &Inst::StackProbeLoop { .. } => {
@@ -1039,20 +1041,17 @@ impl Inst {
                 let cs = format_reg(cs, allocs);
                 format!("{} {},{}", op.op_name(), rd, cs)
             }
-            &Inst::CMod { op, cs, rs, im, cd } => match (im, rs) {
-                (Some(im), None) => {
-                    let cs = format_reg(cs, allocs);
-                    let cd = format_reg(cd.to_reg(), allocs);
-                    format!("{} {},{},{}", op.op_name(), cd, cs, im)
-                }
-                (None, Some(rs)) => {
-                    let cs = format_reg(cs, allocs);
-                    let cd = format_reg(cd.to_reg(), allocs);
-                    let rs = format_reg(rs, allocs);
-                    format!("{} {},{},{}", op.op_name(), cd, cs, rs)
-                }
-                _ => panic!("can not set rs and imm"),
-            },
+            &Inst::CMod { op, cs, rs, cd } => {
+                let cs = format_reg(cs, allocs);
+                let cd = format_reg(cd.to_reg(), allocs);
+                let rs = format_reg(rs, allocs);
+                format!("{} {},{},{}", op.op_name(), cd, cs, rs)
+            }
+            &Inst::CModImm12 { op, cs, imm, cd } => {
+                let cs = format_reg(cs, allocs);
+                let cd = format_reg(cd.to_reg(), allocs);
+                format!("{}Imm {},{},{}", op.op_name(), cd, cs, imm)
+            }
             &Inst::SelectIf {
                 if_spectre_guard,
                 ref rd,
