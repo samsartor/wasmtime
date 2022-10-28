@@ -614,8 +614,8 @@ fn riscv64_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut Operan
             collector.reg_def(rd);
         }
         &Inst::CMod { cs, rs, cd, .. } => {
-            collector.reg_use(cs);
             collector.reg_use(rs);
+            collector.reg_use(cs);
             collector.reg_def(cd);
         }
         &Inst::CModImm12 { cs, cd, .. } => {
@@ -1042,9 +1042,9 @@ impl Inst {
                 format!("{} {},{}", op.op_name(), rd, cs)
             }
             &Inst::CMod { op, cs, rs, cd } => {
+                let rs = format_reg(rs, allocs);
                 let cs = format_reg(cs, allocs);
                 let cd = format_reg(cd.to_reg(), allocs);
-                let rs = format_reg(rs, allocs);
                 format!("{} {},{},{}", op.op_name(), cd, cs, rs)
             }
             &Inst::CModImm12 { op, cs, imm, cd } => {
