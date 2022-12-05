@@ -1294,7 +1294,20 @@ where
         Opcode::GetStackPointer => unimplemented!("GetStackPointer"),
         Opcode::GetReturnAddress => unimplemented!("GetReturnAddress"),
 
-        Opcode::HandleAdd => unimplemented!("HandleAdd"),
+        Opcode::HandleAdd
+        | Opcode::SegLoad
+        | Opcode::SegSload8
+        | Opcode::SegUload8
+        | Opcode::SegSload16
+        | Opcode::SegUload16
+        | Opcode::SegSload32
+        | Opcode::SegUload32
+        | Opcode::SegStore
+        | Opcode::SegStore8
+        | Opcode::SegStore16
+        | Opcode::SegStore32 => {
+            unimplemented!("CHERI extension")
+        }
     })
 }
 

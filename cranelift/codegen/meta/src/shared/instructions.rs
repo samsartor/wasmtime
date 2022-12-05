@@ -3933,4 +3933,144 @@ pub(crate) fn define(
         .operands_in(vec![x, y])
         .operands_out(vec![a]),
     );
+
+    let SegMem = &TypeVar::new(
+        "SegMem",
+        "Any type that can be stored in a memory segment",
+        TypeSetBuilder::new()
+            .ints(Interval::All)
+            .floats(Interval::All)
+            .handles()
+            .build(),
+    );
+
+    let p = &Operand::new("p", Handle).with_doc("The segment handle");
+    let x = &Operand::new("x", SegMem);
+    let a = &Operand::new("a", SegMem);
+
+    ig.push(
+        Inst::new(
+            "seg_load",
+            "Load from the given segment of memory.",
+            &formats.unary,
+        )
+        .operands_in(vec![p])
+        .operands_out(vec![a])
+        .can_load(true),
+    );
+
+    ig.push(
+        Inst::new(
+            "seg_store",
+            "Store to the given segment of memory.",
+            &formats.binary,
+        )
+        .operands_in(vec![x, p])
+        .can_store(true),
+    );
+
+    let x = &Operand::new("x", iExt8);
+    let a = &Operand::new("a", iExt8);
+
+    ig.push(
+        Inst::new(
+            "seg_uload8",
+            "Load 8 bits from the given segment of memory and zero-extend.",
+            &formats.unary,
+        )
+        .operands_in(vec![p])
+        .operands_out(vec![a])
+        .can_load(true),
+    );
+
+    ig.push(
+        Inst::new(
+            "seg_sload8",
+            "Load 8 bits from the given segment of memory and sign-extend.",
+            &formats.unary,
+        )
+        .operands_in(vec![p])
+        .operands_out(vec![a])
+        .can_load(true),
+    );
+
+    ig.push(
+        Inst::new(
+            "seg_store8",
+            "Store 8 bits to the given segment of memory.",
+            &formats.binary,
+        )
+        .operands_in(vec![x, p])
+        .can_store(true),
+    );
+
+    let x = &Operand::new("x", iExt16);
+    let a = &Operand::new("a", iExt16);
+
+    ig.push(
+        Inst::new(
+            "seg_uload16",
+            "Load 16 bits from the given segment of memory and zero-extend.",
+            &formats.unary,
+        )
+        .operands_in(vec![p])
+        .operands_out(vec![a])
+        .can_load(true),
+    );
+
+    ig.push(
+        Inst::new(
+            "seg_sload16",
+            "Load 16 bits from the given segment of memory and sign-extend.",
+            &formats.unary,
+        )
+        .operands_in(vec![p])
+        .operands_out(vec![a])
+        .can_load(true),
+    );
+
+    ig.push(
+        Inst::new(
+            "seg_store16",
+            "Store 16 bits to the given segment of memory.",
+            &formats.binary,
+        )
+        .operands_in(vec![x, p])
+        .can_store(true),
+    );
+
+    let x = &Operand::new("x", iExt32);
+    let a = &Operand::new("a", iExt32);
+
+    ig.push(
+        Inst::new(
+            "seg_uload32",
+            "Load 32 bits from the given segment of memory and zero-extend.",
+            &formats.unary,
+        )
+        .operands_in(vec![p])
+        .operands_out(vec![a])
+        .can_load(true),
+    );
+
+    ig.push(
+        Inst::new(
+            "seg_sload32",
+            "Load 32 bits from the given segment of memory and sign-extend.",
+            &formats.unary,
+        )
+        .operands_in(vec![p])
+        .operands_out(vec![a])
+        .can_load(true),
+    );
+
+    ig.push(
+        Inst::new(
+            "seg_store32",
+            "Store 32 bits to the given segment of memory.",
+            &formats.binary,
+        )
+        .operands_in(vec![x, p])
+        .can_load(true),
+    );
 }

@@ -360,6 +360,10 @@
       (cd WritableReg)
       (cs Reg)
       (imm Imm12))
+    (CLoad
+      (op CLoadOp)
+      (rd WritableReg)
+      (cs Reg))
 ))
 
 
@@ -710,6 +714,28 @@
   (IncOffset)
 ))
 
+(type CLoadOp (enum  
+  (Lb)
+  (Lh)
+  (Lw)
+  (Lbu)
+  (Lhu)
+  (Lwu)
+  (Ld)
+  (Flw)
+  (Fld)
+  (Lc)
+))
+
+(type CStoreOp (enum  
+  (Sb)
+  (Sh)
+  (Sw)
+  (Sd)
+  (Fsw)
+  (Fsd)
+  (Sc)
+))
 
 (type VecBranchTarget (primitive VecBranchTarget))
 (type BoxCallInfo (primitive BoxCallInfo))
@@ -2181,3 +2207,33 @@
       (let ((cdst WritableReg (temp_writable_reg $H128))
             (_ Unit (emit (MInst.CModImm12 op cdst csrc imm))))
         cdst))
+    
+;; Helper for emitting `MInst.CLoad` instructions.
+(decl gen_cload (Reg CLoadOp Type) Reg)
+(rule
+  (gen_cload seg op ty)
+  (let
+    ((tmp WritableReg (temp_writable_reg ty))
+      (_ Unit (emit (MInst.CLoad op tmp seg))))
+    tmp))
+
+(decl cload_op (bool Type) CLoadOp)
+(rule (cload_op $false $I8) (CLoadOp.Lbu))
+(rule (cload_op $false $I16) (CLoadOp.Lhu))
+(rule (cload_op $false $I32) (CLoadOp.Lwu))
+(rule (cload_op _ $I64) (CLoadOp.Ld))
+(rule (cload_op $true $I8) (CLoadOp.Lb))
+(rule (cload_op $true $I16) (CLoadOp.Lh))
+(rule (cload_op $true $I32) (CLoadOp.Lw))
+(rule (cload_op _ $F32) (CLoadOp.Flw))
+(rule (cload_op _ $F64) (CLoadOp.Fld))
+(rule (cload_op _ $H128) (CLoadOp.Lc))
+
+(decl cstore_op (Type) CStoreOp)
+(rule (cstore_op $I8) (CStoreOp.Sb))
+(rule (cstore_op $I16) (CStoreOp.Sh))
+(rule (cstore_op $I32) (CStoreOp.Sw))
+(rule (cstore_op $I64) (CStoreOp.Sd))
+(rule (cstore_op $F32) (CStoreOp.Fsw))
+(rule (cstore_op $F64) (CStoreOp.Fsd))
+(rule (cstore_op $H128) (CStoreOp.Sc))

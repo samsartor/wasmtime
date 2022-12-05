@@ -571,7 +571,18 @@ fn lower_insn_to_regs(
             panic!("Branch opcode reached non-branch lowering logic!");
         }
 
-        Opcode::HandleAdd => {
+        Opcode::HandleAdd
+        | Opcode::SegLoad
+        | Opcode::SegSload8
+        | Opcode::SegUload8
+        | Opcode::SegSload16
+        | Opcode::SegUload16
+        | Opcode::SegSload32
+        | Opcode::SegUload32
+        | Opcode::SegStore
+        | Opcode::SegStore8
+        | Opcode::SegStore16
+        | Opcode::SegStore32 => {
             panic!("CHERI is unsupported on x86");
         }
     }

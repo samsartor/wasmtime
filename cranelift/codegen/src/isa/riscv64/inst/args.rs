@@ -1650,10 +1650,10 @@ impl CGetOp {
 
     pub(crate) fn op_name(self) -> &'static str {
         match self {
-            CGetOp::GetBase => "CGetBase",
-            CGetOp::GetLen => "CGetLen",
-            CGetOp::GetOffset => "CGetOffset",
-            CGetOp::GetAddr => "CGetAddr",
+            CGetOp::GetBase => "cgetbase",
+            CGetOp::GetLen => "cgetlen",
+            CGetOp::GetOffset => "cgetoffset",
+            CGetOp::GetAddr => "cgetaddr",
         }
     }
 }
@@ -1675,8 +1675,40 @@ impl CModOp {
 
     pub(crate) fn op_name(self) -> &'static str {
         match self {
-            CModOp::SetBounds => "CSetBounds",
-            CModOp::IncOffset => "CIncOffset",
+            CModOp::SetBounds => "csetbounds",
+            CModOp::IncOffset => "cincoffset",
+        }
+    }
+}
+
+impl CLoadOp {
+    pub(crate) fn op_code(self) -> u32 {
+        match self {
+            CLoadOp::Lb => 0x08,
+            CLoadOp::Lh => 0x09,
+            CLoadOp::Lw => 0x0a,
+            CLoadOp::Ld => 0x0b,
+            CLoadOp::Lbu => 0x0c,
+            CLoadOp::Lhu => 0x0d,
+            CLoadOp::Lwu => 0x0e,
+            CLoadOp::Flw => todo!(),
+            CLoadOp::Fld => todo!(),
+            CLoadOp::Lc => 0x1f,
+        }
+    }
+
+    pub(crate) fn op_name(self) -> &'static str {
+        match self {
+            CLoadOp::Lb => "clb",
+            CLoadOp::Lh => "clh",
+            CLoadOp::Lw => "clw",
+            CLoadOp::Lbu => "clbu",
+            CLoadOp::Lhu => "clhu",
+            CLoadOp::Lwu => "clwu",
+            CLoadOp::Ld => "cld",
+            CLoadOp::Flw => "cflw",
+            CLoadOp::Fld => "cfld",
+            CLoadOp::Lc => "clc",
         }
     }
 }

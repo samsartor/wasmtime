@@ -148,6 +148,8 @@
 (extern const $R32 Type)
 (extern const $R64 Type)
 
+(extern const $H128 Type)
+
 (extern const $F32 Type)
 (extern const $F64 Type)
 

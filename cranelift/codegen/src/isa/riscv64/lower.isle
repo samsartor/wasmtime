@@ -905,3 +905,32 @@
   (gen_cmod (CModOp.IncOffset) x y))
 (rule 1 (lower (handle_add x (imm12_from_value y)))
   (gen_cmod_imm (CModOp.IncOffset) x y))
+
+;;;; Rules for `seg_load` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (has_type ty (seg_load x)))
+  (gen_cload x (cload_op $false ty) ty))
+;;;; Rules for `seg_sload8` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_sload8 x))
+  (gen_cload x (cload_op $true $I8) $I8))
+;;;; Rules for `seg_uload8` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_uload8 x))
+  (gen_cload x (cload_op $false $I8) $I8))
+;;;; Rules for `seg_sload16` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_sload16 x))
+  (gen_cload x (cload_op $true $I16) $I16))
+;;;; Rules for `seg_uload16` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_uload16 x))
+  (gen_cload x (cload_op $false $I16) $I16))
+;;;; Rules for `seg_sload32` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_sload32 x))
+  (gen_cload x (cload_op $true $I32) $I32))
+;;;; Rules for `seg_uload32` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_uload32 x))
+  (gen_cload x (cload_op $false $I32) $I32))

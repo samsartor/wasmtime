@@ -10,7 +10,7 @@ block0(v0: h128):
 }
 
 ; block0:
-;   CIncOffsetImm a0,a0,+16
+;   cincoffset a0,a0,+16
 ;   ret
 
 function %f2(h128, i64) -> h128 {
@@ -20,5 +20,55 @@ block0(v0: h128, v1: i64):
 }
 
 ; block0:
-;   CIncOffset a0,a0,a1
+;   cincoffset a0,a0,a1
+;   ret
+
+function %test_loadi64(h128) -> i64 {
+block0(v0: h128):
+  v1 = seg_load.i64 v0
+  return v1
+}
+
+; block0:
+;   cld a0,a0,a1
+;   ret
+
+function %test_loadi32(h128) -> i32 {
+block0(v0: h128):
+  v1 = seg_sload32.i32 v0
+  return v1
+}
+
+; block0:
+;   clw a0,a0,a1
+;   ret
+
+function %test_loadu32(h128) -> i32 {
+block0(v0: h128):
+  v1 = seg_uload32.i32 v0
+  return v1
+}
+
+; block0:
+;   clwu a0,a0,a1
+;   ret
+
+function %test_loadi8(h128) -> i8 {
+block0(v0: h128):
+  v1 = seg_sload8.i8 v0
+  return v1
+}
+
+; block0:
+;   clb a0,a0,a1
+;   ret
+
+function %test_loadu8(h128) -> i8 {
+block0(v0: h128):
+  v1 = seg_uload8.i8 v0
+  return v1
+}
+
+; block0:
+;   clbu a0,a0,a1
 ;   ret

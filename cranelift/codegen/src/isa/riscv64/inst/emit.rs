@@ -2868,6 +2868,16 @@ impl MachInstEmit for Inst {
                     | imm.as_u32() << 20;
                 sink.put4(x);
             }
+            &Inst::CLoad { op, rd, cs } => {
+                let cs = allocs.next(cs);
+                let rd = allocs.next_writable(rd);
+                let x = 0x5b
+                    | reg_to_gpr_num(rd.to_reg()) << 7
+                    | reg_to_gpr_num(cs) << 15
+                    | op.op_code() << 20
+                    | 0x7d << 25;
+                sink.put4(x);
+            }
             &Inst::StackProbeLoop {
                 guard_size,
                 probe_count,
