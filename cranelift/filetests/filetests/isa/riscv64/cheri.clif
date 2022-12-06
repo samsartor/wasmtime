@@ -73,3 +73,64 @@ block0(v0: h128):
 ;   clbu a0,a0
 ;   ret
 
+function %test_load_handle(h128) -> h128 {
+block0(v0: h128):
+  v1 = seg_load.h128 v0
+  return v1
+}
+
+; block0:
+;   clc a0,a0
+;   ret
+
+function %test_storei64(h128, i64) {
+block0(v0: h128, v1: i64):
+  seg_store v1,v0
+  return
+}
+
+; block0:
+;   csd a0,a1
+;   ret
+
+function %test_storei32(h128, i64) {
+block0(v0: h128, v1: i64):
+  seg_store32 v1,v0
+  return
+}
+
+; block0:
+;   csw a0,a1
+;   ret
+
+function %test_storei16(h128, i64) {
+block0(v0: h128, v1: i64):
+  seg_store16 v1,v0
+  return
+}
+
+; block0:
+;   csh a0,a1
+;   ret
+
+function %test_storei8(h128, i64) {
+block0(v0: h128, v1: i64):
+  seg_store8 v1,v0
+  return
+}
+
+; block0:
+;   csb a0,a1
+;   ret
+
+
+function %test_store_handle(h128, h128) {
+block0(v0: h128, v1: h128):
+  seg_store v1,v0
+  return
+}
+
+; block0:
+;   csc a0,a1
+;   ret
+
