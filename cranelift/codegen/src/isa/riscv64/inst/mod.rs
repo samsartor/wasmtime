@@ -626,6 +626,10 @@ fn riscv64_get_operands<F: Fn(VReg) -> VReg>(inst: &Inst, collector: &mut Operan
             collector.reg_use(cs);
             collector.reg_def(rd);
         }
+        &Inst::CStore { cs, rs, .. } => {
+            collector.reg_use(cs);
+            collector.reg_use(rs);
+        }
         &Inst::StackProbeLoop { .. } => {
             // StackProbeLoop has a tmp register and StackProbeLoop used at gen_prologue.
             // t3 will do the job. (t3 is caller-save register and not used directly by compiler like writable_spilltmp_reg)
@@ -1054,10 +1058,15 @@ impl Inst {
             &Inst::CModImm12 { op, cs, imm, cd } => {
                 let cs = format_reg(cs, allocs);
                 let cd = format_reg(cd.to_reg(), allocs);
-                format!("{}Imm {},{},{}", op.op_name(), cd, cs, imm)
+                format!("{} {},{},{}", op.op_name(), cd, cs, imm)
             }
             &Inst::CLoad { op, cs, rd } => {
                 let rd = format_reg(rd.to_reg(), allocs);
+                let cs = format_reg(cs, allocs);
+                format!("{} {},{}", op.op_name(), rd, cs)
+            }
+            &Inst::CStore { op, cs, rs } => {
+                let rd = format_reg(rs, allocs);
                 let cs = format_reg(cs, allocs);
                 format!("{} {},{}", op.op_name(), rd, cs)
             }

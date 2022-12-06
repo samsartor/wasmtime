@@ -1713,6 +1713,32 @@ impl CLoadOp {
     }
 }
 
+impl CStoreOp {
+    pub(crate) fn op_code(self) -> u32 {
+        match self {
+            CStoreOp::Sb => 0x08,
+            CStoreOp::Sh => 0x09,
+            CStoreOp::Sw => 0x0a,
+            CStoreOp::Sd => 0x0b,
+            CStoreOp::Fsw => todo!(),
+            CStoreOp::Fsd => todo!(),
+            CStoreOp::Sc => 0x0c,
+        }
+    }
+
+    pub(crate) fn op_name(self) -> &'static str {
+        match self {
+            CStoreOp::Sb => "csb",
+            CStoreOp::Sh => "csh",
+            CStoreOp::Sw => "csw",
+            CStoreOp::Sd => "csd",
+            CStoreOp::Fsw => "cfsw",
+            CStoreOp::Fsd => "cfsd",
+            CStoreOp::Sc => "csc",
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub enum CsrAddress {
     Fcsr = 0x3,

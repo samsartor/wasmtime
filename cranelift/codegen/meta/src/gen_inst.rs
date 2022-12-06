@@ -848,9 +848,15 @@ fn gen_type_constraints(all_inst: &AllInstructions, fmt: &mut Formatter) {
             // which are always special cased.
             let mut constraints = Vec::new();
             for &index in &inst.value_results {
+            if inst.camel_name.contains(&"Seg") {
+                dbg!();
+            }
                 constraints.push(get_constraint(&inst.operands_out[index], ctrl_typevar, &mut type_sets));
             }
             for &index in &inst.value_opnums {
+            if inst.camel_name.contains(&"Seg") {
+                dbg!();
+            }
                 constraints.push(get_constraint(&inst.operands_in[index], ctrl_typevar, &mut type_sets));
             }
 

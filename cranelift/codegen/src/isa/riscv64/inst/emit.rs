@@ -2878,6 +2878,16 @@ impl MachInstEmit for Inst {
                     | 0x7d << 25;
                 sink.put4(x);
             }
+            &Inst::CStore { op, rs, cs } => {
+                let cs = allocs.next(cs);
+                let rs = allocs.next(rs);
+                let x = 0x5b
+                    | op.op_code() << 7
+                    | reg_to_gpr_num(cs) << 15
+                    | reg_to_gpr_num(rs) << 20
+                    | 0x7c << 25;
+                sink.put4(x);
+            }
             &Inst::StackProbeLoop {
                 guard_size,
                 probe_count,

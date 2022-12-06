@@ -3952,9 +3952,9 @@ pub(crate) fn define(
         Inst::new(
             "seg_load",
             "Load from the given segment of memory.",
-            &formats.unary,
+            &formats.load_no_offset,
         )
-        .operands_in(vec![p])
+        .operands_in(vec![MemFlags, p])
         .operands_out(vec![a])
         .can_load(true),
     );
@@ -3963,9 +3963,9 @@ pub(crate) fn define(
         Inst::new(
             "seg_store",
             "Store to the given segment of memory.",
-            &formats.binary,
+            &formats.store_no_offset,
         )
-        .operands_in(vec![x, p])
+        .operands_in(vec![MemFlags, x, p])
         .can_store(true),
     );
 

@@ -2387,6 +2387,7 @@ impl<'a> Parser<'a> {
             }
         };
 
+        /*
         // Verify that `ctrl_type` is valid for the controlling type variable. We don't want to
         // attempt deriving types from an incorrect basis.
         // This is not a complete type check. The verifier does that.
@@ -2402,8 +2403,10 @@ impl<'a> Parser<'a> {
             }
         // Treat it as a syntax error to specify a typevar on a non-polymorphic opcode.
         } else if ctrl_type != INVALID {
+            constraints.ctrl_typeset();
             return err!(self.loc, "{} does not take a typevar", opcode);
         }
+        */
 
         Ok(ctrl_type)
     }

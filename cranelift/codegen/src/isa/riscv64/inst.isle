@@ -364,6 +364,10 @@
       (op CLoadOp)
       (rd WritableReg)
       (cs Reg))
+    (CStore
+      (op CStoreOp)
+      (rs Reg)
+      (cs Reg))
 ))
 
 
@@ -2216,6 +2220,13 @@
     ((tmp WritableReg (temp_writable_reg ty))
       (_ Unit (emit (MInst.CLoad op tmp seg))))
     tmp))
+
+;; Helper for emitting `MInst.CStore` instructions.
+(decl gen_cstore (Reg CStoreOp Reg) InstOutput)
+(rule 
+  (gen_cstore seg op src)
+  (side_effect (SideEffectNoResult.Inst (MInst.CStore op src seg)))
+)
 
 (decl cload_op (bool Type) CLoadOp)
 (rule (cload_op $false $I8) (CLoadOp.Lbu))

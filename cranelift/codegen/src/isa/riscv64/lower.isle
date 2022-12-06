@@ -908,7 +908,7 @@
 
 ;;;; Rules for `seg_load` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule
-  (lower (has_type ty (seg_load x)))
+  (lower (has_type ty (seg_load flags x)))
   (gen_cload x (cload_op $false ty) ty))
 ;;;; Rules for `seg_sload8` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (rule
@@ -934,3 +934,20 @@
 (rule
   (lower (seg_uload32 x))
   (gen_cload x (cload_op $false $I32) $I32))
+
+;;;; Rules for `seg_store` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_store flags v @ (value_type ty) s))
+  (gen_cstore s (cstore_op ty) v))
+;;;; Rules for `seg_store8` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_store8 v s))
+  (gen_cstore s (cstore_op $I8) v))
+;;;; Rules for `seg_store16` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_store16 v s))
+  (gen_cstore s (cstore_op $I16) v))
+;;;; Rules for `seg_store32` ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(rule
+  (lower (seg_store32 v s))
+  (gen_cstore s (cstore_op $I32) v))
