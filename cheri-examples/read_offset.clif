@@ -1,0 +1,6 @@
+function %read_offset(h128, i64) -> i64 {
+block0(v0: h128, v1: i64):
+	v2 = handle_add v0,v1
+	v3 = seg_load.i64 v2
+	return v3
+}

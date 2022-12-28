@@ -18,6 +18,9 @@ fn define_settings(_shared: &SettingGroup) -> SettingGroup {
     let _has_zicsr = setting.add_bool("has_zicsr", "has extension zicsr?", "", false);
     let _has_zifencei = setting.add_bool("has_zifencei", "has extension zifencei?", "", false);
 
+    let _has_cheri = setting.add_bool("has_cheri", "has cheri extension?", "", false);
+    let _cheri_purecap = setting.add_bool("purecap", "should use cheri purecap mode?", "", false);
+
     setting.build()
 }
 

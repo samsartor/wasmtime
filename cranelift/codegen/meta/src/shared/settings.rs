@@ -364,6 +364,13 @@ pub(crate) fn define() -> SettingGroup {
         false,
     );
 
+    settings.add_bool(
+        "enable_cheri",
+        "Enable the use of the cheri extension for capability-based security",
+        "",
+        false,
+    );
+
     // When adding new settings please check if they can also be added
     // in cranelift/fuzzgen/src/lib.rs for fuzzing.
     settings.build()
